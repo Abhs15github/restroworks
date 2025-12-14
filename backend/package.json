@@ -12,6 +12,7 @@
     "@payloadcms/bundler-webpack": "^1.0.7",
     "@payloadcms/db-mongodb": "^1.7.5",
     "@payloadcms/richtext-lexical": "^0.11.4",
+    "cloudinary": "^2.8.0",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
     "mongoose": "^8.0.0",
