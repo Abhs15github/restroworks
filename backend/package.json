@@ -1,0 +1,27 @@
+{
+  "name": "restroworks-backend",
+  "version": "1.0.0",
+  "description": "PayloadCMS backend for Restroworks assignment",
+  "scripts": {
+    "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "generate:types": "payload generate:types"
+  },
+  "dependencies": {
+    "@payloadcms/bundler-webpack": "^1.0.7",
+    "@payloadcms/db-mongodb": "^1.7.5",
+    "@payloadcms/richtext-lexical": "^0.11.4",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "mongoose": "^8.0.0",
+    "payload": "^2.32.3"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.10.0",
+    "cross-env": "^7.0.3",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.3.3"
+  }
+}
