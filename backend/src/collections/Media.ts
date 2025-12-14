@@ -82,9 +82,10 @@ export const Media: CollectionConfig = {
             return doc
           }
 
-          // Upload to Cloudinary (use require to avoid webpack bundling)
+          // Upload to Cloudinary (use dynamic require to avoid webpack bundling)
           console.log(`Uploading ${doc.filename} to Cloudinary...`)
-          const cloudinaryLib = require('../lib/cloudinary')
+          // Use dynamic require that webpack can't analyze
+          const cloudinaryLib = eval('require')(path.join(__dirname, '../server-only/cloudinary'))
           const cloudinaryResult = await cloudinaryLib.uploadToCloudinary(filePath, 'restroworks')
 
           // Update the document with Cloudinary info
@@ -109,7 +110,7 @@ export const Media: CollectionConfig = {
                 
                 if (fs.existsSync(sizePath)) {
                   // Upload size variant to Cloudinary
-                  const cloudinaryLib = require('../lib/cloudinary')
+                  const cloudinaryLib = eval('require')(path.join(__dirname, '../server-only/cloudinary'))
                   const sizeResult = await cloudinaryLib.uploadToCloudinary(sizePath, 'restroworks')
                   
                   updatedSizes[sizeName] = {
@@ -158,14 +159,14 @@ export const Media: CollectionConfig = {
 
           if (doc.cloudinaryPublicId && typeof doc.cloudinaryPublicId === 'string') {
             console.log(`Deleting ${doc.cloudinaryPublicId} from Cloudinary...`)
-            const cloudinaryLib = require('../lib/cloudinary')
+            const cloudinaryLib = eval('require')(path.join(__dirname, '../server-only/cloudinary'))
             await cloudinaryLib.deleteFromCloudinary(doc.cloudinaryPublicId)
             console.log(`✅ Successfully deleted from Cloudinary`)
           }
 
           // Also delete size variants if they exist
           if (doc.sizes) {
-            const cloudinaryLib = require('../lib/cloudinary')
+            const cloudinaryLib = eval('require')(path.join(__dirname, '../server-only/cloudinary'))
             for (const [sizeName, sizeData] of Object.entries(doc.sizes)) {
               if (sizeData && typeof sizeData === 'object' && 'cloudinaryPublicId' in sizeData) {
                 const sizeDataObj = sizeData as any
