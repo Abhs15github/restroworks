@@ -8,10 +8,9 @@ import fs from 'fs'
 
 const app = express()
 
-// Redirect root to admin
-app.get('/', (_, res) => {
-  res.redirect('/admin')
-})
+// Add body parser middleware (PayloadCMS needs this)
+app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 
 const start = async () => {
   // Ensure media directory exists
@@ -22,13 +21,25 @@ const start = async () => {
   }
 
   // Initialize Payload
-  await payload.init({
-    config,
-    secret: process.env.PAYLOAD_SECRET!,
-    express: app,
-    onInit: async () => {
-      payload.logger.info(`Payload Admin URL: ${payload.getAdminURL()}`)
-    },
+  try {
+    await payload.init({
+      config,
+      secret: process.env.PAYLOAD_SECRET!,
+      express: app,
+      onInit: async () => {
+        payload.logger.info(`Payload Admin URL: ${payload.getAdminURL()}`)
+        payload.logger.info(`Server URL: ${process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:3001'}`)
+      },
+    })
+    console.log('✅ PayloadCMS initialized successfully')
+  } catch (error) {
+    console.error('❌ Error initializing PayloadCMS:', error)
+    throw error
+  }
+
+  // Redirect root to admin (after PayloadCMS is initialized)
+  app.get('/', (_, res) => {
+    res.redirect('/admin')
   })
 
   // Explicitly serve static media files (backup in case PayloadCMS doesn't handle it)
