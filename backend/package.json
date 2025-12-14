@@ -4,7 +4,7 @@
   "description": "PayloadCMS backend for Restroworks assignment",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/server.ts",
-    "build": "tsc",
+    "build": "payload build && tsc",
     "start": "node dist/server.js",
     "generate:types": "payload generate:types"
   },
