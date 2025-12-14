@@ -20,7 +20,7 @@ export default function Features({ heading, featureList }: FeaturesProps) {
     <section className="py-16 bg-gray-50">
       <div className="container mx-auto px-4">
         {heading && (
-          <h2 className="text-4xl font-bold text-center mb-12">{heading}</h2>
+          <h2 className="text-4xl font-bold text-center mb-12 text-gray-900">{heading}</h2>
         )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {featureList.map((feature, index) => (
@@ -39,8 +39,8 @@ export default function Features({ heading, featureList }: FeaturesProps) {
                   />
                 </div>
               )}
-              <h3 className="text-xl font-semibold mb-2">{feature.title}</h3>
-              <p className="text-gray-600">{feature.description}</p>
+              <h3 className="text-xl font-semibold mb-2 text-gray-900">{feature.title}</h3>
+              <p className="text-gray-700">{feature.description}</p>
             </div>
           ))}
         </div>

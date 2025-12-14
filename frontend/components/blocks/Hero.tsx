@@ -18,7 +18,7 @@ export default function Hero({
 }: HeroProps) {
   return (
     <section className="relative min-h-[600px] flex items-center justify-center overflow-hidden">
-      {backgroundImage && (
+      {backgroundImage ? (
         <Image
           src={backgroundImage.url}
           alt={backgroundImage.alt || ''}
@@ -26,6 +26,8 @@ export default function Hero({
           className="object-cover"
           priority
         />
+      ) : (
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-800 to-black" />
       )}
       <div className="absolute inset-0 bg-black/40" />
       <div className="relative z-10 container mx-auto px-4 text-center text-white">
