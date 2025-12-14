@@ -82,10 +82,10 @@ export const Media: CollectionConfig = {
             return doc
           }
 
-          // Upload to Cloudinary (dynamic import to avoid webpack bundling)
+          // Upload to Cloudinary (use require to avoid webpack bundling)
           console.log(`Uploading ${doc.filename} to Cloudinary...`)
-          const { uploadToCloudinary } = await import('../lib/cloudinary')
-          const cloudinaryResult = await uploadToCloudinary(filePath, 'restroworks')
+          const cloudinaryLib = require('../lib/cloudinary')
+          const cloudinaryResult = await cloudinaryLib.uploadToCloudinary(filePath, 'restroworks')
 
           // Update the document with Cloudinary info
           await req.payload.update({
@@ -109,8 +109,8 @@ export const Media: CollectionConfig = {
                 
                 if (fs.existsSync(sizePath)) {
                   // Upload size variant to Cloudinary
-                  const { uploadToCloudinary } = await import('../lib/cloudinary')
-                  const sizeResult = await uploadToCloudinary(sizePath, 'restroworks')
+                  const cloudinaryLib = require('../lib/cloudinary')
+                  const sizeResult = await cloudinaryLib.uploadToCloudinary(sizePath, 'restroworks')
                   
                   updatedSizes[sizeName] = {
                     ...sizeFile,
@@ -158,20 +158,20 @@ export const Media: CollectionConfig = {
 
           if (doc.cloudinaryPublicId && typeof doc.cloudinaryPublicId === 'string') {
             console.log(`Deleting ${doc.cloudinaryPublicId} from Cloudinary...`)
-            const { deleteFromCloudinary } = await import('../lib/cloudinary')
-            await deleteFromCloudinary(doc.cloudinaryPublicId)
+            const cloudinaryLib = require('../lib/cloudinary')
+            await cloudinaryLib.deleteFromCloudinary(doc.cloudinaryPublicId)
             console.log(`✅ Successfully deleted from Cloudinary`)
           }
 
           // Also delete size variants if they exist
           if (doc.sizes) {
-            const { deleteFromCloudinary } = await import('../lib/cloudinary')
+            const cloudinaryLib = require('../lib/cloudinary')
             for (const [sizeName, sizeData] of Object.entries(doc.sizes)) {
               if (sizeData && typeof sizeData === 'object' && 'cloudinaryPublicId' in sizeData) {
                 const sizeDataObj = sizeData as any
                 if (sizeDataObj.cloudinaryPublicId && typeof sizeDataObj.cloudinaryPublicId === 'string') {
                   try {
-                    await deleteFromCloudinary(sizeDataObj.cloudinaryPublicId)
+                    await cloudinaryLib.deleteFromCloudinary(sizeDataObj.cloudinaryPublicId)
                   } catch (error) {
                     console.error(`Error deleting size variant ${sizeName}:`, error)
                   }

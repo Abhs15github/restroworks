@@ -10,6 +10,7 @@ import { buildConfig } from 'payload/config'
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { webpackBundler } from '@payloadcms/bundler-webpack'
+import webpack from 'webpack'
 
 import { Pages } from './collections/Pages'
 import { Contacts } from './collections/Contacts'
@@ -21,24 +22,49 @@ export default buildConfig({
   admin: {
     user: 'users',
     bundler: webpackBundler({
-      webpack: (config) => {
-        // Exclude Cloudinary from admin bundle (it uses Node.js modules)
-        config.externals = config.externals || []
-        if (typeof config.externals === 'object' && !Array.isArray(config.externals)) {
-          config.externals = [config.externals]
-        }
-        if (Array.isArray(config.externals)) {
-          config.externals.push('cloudinary')
-        }
+      webpack: (config: any) => {
+        // Ignore Cloudinary completely during webpack build
+        config.plugins = config.plugins || []
+        config.plugins.push(
+          new webpack.IgnorePlugin({
+            checkResource: (resource: string) => {
+              // Ignore cloudinary package and any file that imports it
+              if (resource && (resource.includes('cloudinary') || resource === 'cloudinary')) {
+                return true
+              }
+              return false
+            },
+          })
+        )
         
-        // Add fallbacks for Node.js modules (in case they're still referenced)
+        // Exclude Cloudinary and Node.js modules as externals (function form for better matching)
+        const externals = config.externals || []
+        const externalsArray = Array.isArray(externals) ? externals : [externals]
+        
+        // Add function-based external matching
+        externalsArray.push(({ request }: { request: string }, callback: Function) => {
+          if (request && (
+            request === 'cloudinary' ||
+            request.includes('cloudinary') ||
+            request === 'fs' ||
+            request === 'path'
+          )) {
+            return callback(null, `commonjs ${request}`)
+          }
+          callback()
+        })
+        
+        config.externals = externalsArray
+        
+        // Add fallbacks for Node.js modules
         config.resolve = config.resolve || {}
         config.resolve.fallback = {
-          ...config.resolve.fallback,
+          ...(config.resolve.fallback || {}),
           fs: false,
           stream: false,
           url: false,
           querystring: false,
+          path: false,
         }
         
         return config
