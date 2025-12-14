@@ -20,7 +20,30 @@ export default buildConfig({
   serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL || 'http://localhost:3001',
   admin: {
     user: 'users',
-    bundler: webpackBundler(),
+    bundler: webpackBundler({
+      webpack: (config) => {
+        // Exclude Cloudinary from admin bundle (it uses Node.js modules)
+        config.externals = config.externals || []
+        if (typeof config.externals === 'object' && !Array.isArray(config.externals)) {
+          config.externals = [config.externals]
+        }
+        if (Array.isArray(config.externals)) {
+          config.externals.push('cloudinary')
+        }
+        
+        // Add fallbacks for Node.js modules (in case they're still referenced)
+        config.resolve = config.resolve || {}
+        config.resolve.fallback = {
+          ...config.resolve.fallback,
+          fs: false,
+          stream: false,
+          url: false,
+          querystring: false,
+        }
+        
+        return config
+      },
+    }),
   },
   collections: [Users, Pages, Contacts, Media],
   editor: lexicalEditor({}),

@@ -1,7 +1,7 @@
 import { CollectionConfig } from 'payload/types'
 import path from 'path'
 import fs from 'fs'
-import { uploadToCloudinary, deleteFromCloudinary, getCloudinaryUrl } from '../lib/cloudinary'
+// Cloudinary is imported dynamically in hooks to avoid webpack bundling issues
 
 export const Media: CollectionConfig = {
   slug: 'media',
@@ -82,8 +82,9 @@ export const Media: CollectionConfig = {
             return doc
           }
 
-          // Upload to Cloudinary
+          // Upload to Cloudinary (dynamic import to avoid webpack bundling)
           console.log(`Uploading ${doc.filename} to Cloudinary...`)
+          const { uploadToCloudinary } = await import('../lib/cloudinary')
           const cloudinaryResult = await uploadToCloudinary(filePath, 'restroworks')
 
           // Update the document with Cloudinary info
@@ -108,6 +109,7 @@ export const Media: CollectionConfig = {
                 
                 if (fs.existsSync(sizePath)) {
                   // Upload size variant to Cloudinary
+                  const { uploadToCloudinary } = await import('../lib/cloudinary')
                   const sizeResult = await uploadToCloudinary(sizePath, 'restroworks')
                   
                   updatedSizes[sizeName] = {
@@ -143,7 +145,7 @@ export const Media: CollectionConfig = {
     beforeDelete: [
       async ({ req, id }) => {
         // Only delete from Cloudinary if configured
-        if (!process.env.CLOUDINARY_CLOUD_NAME) {
+        if (!process.env.CLOUDINARY_URL && !process.env.CLOUDINARY_CLOUD_NAME) {
           return
         }
 
@@ -154,18 +156,20 @@ export const Media: CollectionConfig = {
             id,
           })
 
-          if (doc.cloudinaryPublicId) {
+          if (doc.cloudinaryPublicId && typeof doc.cloudinaryPublicId === 'string') {
             console.log(`Deleting ${doc.cloudinaryPublicId} from Cloudinary...`)
+            const { deleteFromCloudinary } = await import('../lib/cloudinary')
             await deleteFromCloudinary(doc.cloudinaryPublicId)
             console.log(`✅ Successfully deleted from Cloudinary`)
           }
 
           // Also delete size variants if they exist
           if (doc.sizes) {
+            const { deleteFromCloudinary } = await import('../lib/cloudinary')
             for (const [sizeName, sizeData] of Object.entries(doc.sizes)) {
               if (sizeData && typeof sizeData === 'object' && 'cloudinaryPublicId' in sizeData) {
                 const sizeDataObj = sizeData as any
-                if (sizeDataObj.cloudinaryPublicId) {
+                if (sizeDataObj.cloudinaryPublicId && typeof sizeDataObj.cloudinaryPublicId === 'string') {
                   try {
                     await deleteFromCloudinary(sizeDataObj.cloudinaryPublicId)
                   } catch (error) {
