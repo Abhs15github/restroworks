@@ -1,6 +1,10 @@
 import dotenv from 'dotenv'
 import path from 'path'
-dotenv.config({ path: path.resolve(__dirname, '../.env') })
+
+// Only load .env file in development (Railway injects env vars in production)
+if (process.env.NODE_ENV !== 'production') {
+  dotenv.config({ path: path.resolve(__dirname, '../.env') })
+}
 
 import { buildConfig } from 'payload/config'
 import { mongooseAdapter } from '@payloadcms/db-mongodb'
