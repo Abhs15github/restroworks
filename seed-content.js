@@ -64,7 +64,7 @@ function makeRequest(url, options, data) {
 }
 
 // Helper function to download and upload image
-async function downloadAndUploadImage(imageUrl, filename, token) {
+async function downloadAndUploadImage(imageUrl, filename, altText, token) {
   return new Promise((resolve, reject) => {
     console.log(`📥 Downloading image: ${filename}...`);
 
@@ -85,6 +85,9 @@ async function downloadAndUploadImage(imageUrl, filename, token) {
             Buffer.from(`Content-Disposition: form-data; name="file"; filename="${filename}"\r\n`),
             Buffer.from('Content-Type: image/jpeg\r\n\r\n'),
             buffer,
+            Buffer.from(delimiter),
+            Buffer.from(`Content-Disposition: form-data; name="alt"\r\n\r\n`),
+            Buffer.from(altText),
             Buffer.from(closeDelimiter)
           ]);
 
@@ -167,6 +170,7 @@ async function seedContent() {
     const heroImage = await downloadAndUploadImage(
       'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1920&h=1080&fit=crop',
       'restaurant-interior.jpg',
+      'Elegant restaurant interior with warm lighting and modern design',
       token
     );
 
