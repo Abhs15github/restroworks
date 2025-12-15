@@ -7,9 +7,10 @@ import { type Locale } from '@/lib/i18n'
 export async function generateMetadata({
   params,
 }: {
-  params: { lang: Locale }
+  params: Promise<{ lang: Locale }>
 }): Promise<Metadata> {
-  const page = await getPage('home', params.lang)
+  const { lang } = await params
+  const page = await getPage('home', lang)
 
   return {
     title: page?.seo?.metaTitle || page?.title || 'Restroworks',
@@ -25,9 +26,10 @@ export async function generateMetadata({
 export default async function HomePage({
   params,
 }: {
-  params: { lang: Locale }
+  params: Promise<{ lang: Locale }>
 }) {
-  const page = await getPage('home', params.lang)
+  const { lang } = await params
+  const page = await getPage('home', lang)
 
   if (!page) {
     notFound()
